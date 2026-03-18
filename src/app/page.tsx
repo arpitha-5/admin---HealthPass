@@ -1,65 +1,283 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { DashboardLayout } from "@/components/layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Users,
+  CalendarCheck,
+  Clock,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  ArrowRight,
+  Plus,
+  Loader2,
+} from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { useAppointments } from "@/hooks/use-appointments"
+import { usePatients } from "@/hooks/use-patients"
+
+const stats = [
+  {
+    title: "Total Patients",
+    value: "2,847",
+    change: "+12%",
+    trend: "up",
+    icon: Users,
+    color: "text-blue-600",
+    bgColor: "bg-blue-50 dark:bg-blue-950",
+  },
+  {
+    title: "Appointments Today",
+    value: "156",
+    change: "+8%",
+    trend: "up",
+    icon: CalendarCheck,
+    color: "text-green-600",
+    bgColor: "bg-green-50 dark:bg-green-950",
+  },
+  {
+    title: "Pending Tasks",
+    value: "23",
+    change: "-3%",
+    trend: "down",
+    icon: Clock,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50 dark:bg-amber-950",
+  },
+  {
+    title: "Revenue (Month)",
+    value: "$48,290",
+    change: "+18%",
+    trend: "up",
+    icon: DollarSign,
+    color: "text-primary",
+    bgColor: "bg-red-50 dark:bg-red-950",
+  },
+]
+
+const patientTrends = [
+  { day: "Mon", patients: 45 },
+  { day: "Tue", patients: 52 },
+  { day: "Wed", patients: 48 },
+  { day: "Thu", patients: 61 },
+  { day: "Fri", patients: 55 },
+  { day: "Sat", patients: 38 },
+  { day: "Sun", patients: 25 },
+]
+
+const appointmentStatus = [
+  { status: "Completed", count: 89, color: "bg-green-500" },
+  { status: "Scheduled", count: 45, color: "bg-blue-500" },
+  { status: "Cancelled", count: 12, color: "bg-red-500" },
+  { status: "No-show", count: 10, color: "bg-amber-500" },
+]
+
+const maxPatients = Math.max(...patientTrends.map((t) => t.patients))
+
+export default function DashboardPage() {
+  const { data: appointments = [], isLoading: isLoadingAppointments } = useAppointments()
+  const { isLoading: isLoadingPatients } = usePatients()
+
+  const isLoading = isLoadingAppointments || isLoadingPatients
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back! Here&apos;s an overview of your clinic.
+            </p>
+          </div>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Appointment
+          </Button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <Card key={stat.title}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <div className={`rounded-lg p-2 ${stat.bgColor}`}>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="flex items-center text-xs text-muted-foreground">
+                  {stat.trend === "up" ? (
+                    <TrendingUp className="mr-1 h-3 w-3 text-green-600" />
+                  ) : (
+                    <TrendingDown className="mr-1 h-3 w-3 text-red-600" />
+                  )}
+                  <span className={stat.trend === "up" ? "text-green-600" : "text-red-600"}>
+                    {stat.change}
+                  </span>
+                  {" "}from last month
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Patient Visits (7-Day Trend)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex h-[200px] items-end justify-between gap-2">
+                {patientTrends.map((trend) => (
+                  <div key={trend.day} className="flex flex-1 flex-col items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {trend.patients}
+                    </span>
+                    <div
+                      className="w-full rounded-t-md bg-primary transition-all hover:bg-primary/80"
+                      style={{ height: `${(trend.patients / maxPatients) * 150}px` }}
+                    />
+                    <span className="text-xs font-semibold">{trend.day}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-3">
+            <CardHeader>
+              <CardTitle>Appointment Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {appointmentStatus.map((item) => (
+                <div key={item.status} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-3 w-3 rounded-full ${item.color}`} />
+                    <span className="text-sm">{item.status}</span>
+                  </div>
+                  <span className="font-semibold">{item.count}</span>
+                </div>
+              ))}
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold">Total</span>
+                <span className="font-bold">{appointmentStatus.reduce((a, b) => a + b.count, 0)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Appointments</CardTitle>
+              <Button variant="ghost" size="sm">
+                View All
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex h-[200px] items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-semibold">Patient</TableHead>
+                      <TableHead className="font-semibold">Doctor</TableHead>
+                      <TableHead className="font-semibold">Time</TableHead>
+                      <TableHead className="font-semibold">Type</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {appointments.slice(0, 5).map((apt) => (
+                      <TableRow key={apt.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs font-semibold">
+                                {apt.patient.split(" ").map((n) => n[0]).join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-semibold">{apt.patient}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{apt.doctor}</TableCell>
+                        <TableCell>{apt.time}</TableCell>
+                        <TableCell>{apt.type}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              apt.status === "Completed"
+                                ? "default"
+                                : apt.status === "In Progress"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className={
+                              apt.status === "Completed"
+                                ? "bg-green-500 hover:bg-green-600 font-semibold"
+                                : apt.status === "In Progress"
+                                ? "bg-blue-500 hover:bg-blue-600 font-semibold"
+                                : ""
+                            }
+                          >
+                            {apt.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button className="w-full justify-start" variant="outline">
+                <Users className="mr-2 h-4 w-4" />
+                Add New Patient
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Schedule Appointment
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <Activity className="mr-2 h-4 w-4" />
+                View Medical Records
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <DollarSign className="mr-2 h-4 w-4" />
+                Generate Report
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
+  )
 }
