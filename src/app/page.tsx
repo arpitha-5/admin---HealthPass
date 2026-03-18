@@ -10,13 +10,13 @@ import {
   Users,
   CalendarCheck,
   Clock,
-  DollarSign,
   TrendingUp,
   TrendingDown,
   Activity,
   ArrowRight,
   Plus,
   Loader2,
+  IndianRupee,
 } from "lucide-react"
 import {
   Table,
@@ -29,10 +29,26 @@ import {
 import { useAppointments } from "@/hooks/use-appointments"
 import { usePatients } from "@/hooks/use-patients"
 
+function formatIndianRupee(value: number): string {
+  const str = value.toString()
+  const lastThree = str.substring(str.length - 3)
+  const rest = str.substring(0, str.length - 3)
+  const formatted = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + (rest ? "," : "") + lastThree
+  return `₹${formatted}`
+}
+
+function formatNumber(value: number): string {
+  const str = value.toString()
+  const lastThree = str.substring(str.length - 3)
+  const rest = str.substring(0, str.length - 3)
+  return rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + (rest ? "," : "") + lastThree
+}
+
 const stats = [
   {
     title: "Total Patients",
-    value: "2,847",
+    value: 2847,
+    formattedValue: formatNumber(2847),
     change: "+12%",
     trend: "up",
     icon: Users,
@@ -41,7 +57,8 @@ const stats = [
   },
   {
     title: "Appointments Today",
-    value: "156",
+    value: 156,
+    formattedValue: formatNumber(156),
     change: "+8%",
     trend: "up",
     icon: CalendarCheck,
@@ -50,7 +67,8 @@ const stats = [
   },
   {
     title: "Pending Tasks",
-    value: "23",
+    value: 23,
+    formattedValue: formatNumber(23),
     change: "-3%",
     trend: "down",
     icon: Clock,
@@ -59,10 +77,11 @@ const stats = [
   },
   {
     title: "Revenue (Month)",
-    value: "$48,290",
+    value: 4829000,
+    formattedValue: formatIndianRupee(4829000),
     change: "+18%",
     trend: "up",
-    icon: DollarSign,
+    icon: IndianRupee,
     color: "text-primary",
     bgColor: "bg-red-50 dark:bg-red-950",
   },
@@ -96,9 +115,9 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
             <p className="text-muted-foreground">
               Welcome back! Here&apos;s an overview of your clinic.
             </p>
@@ -109,7 +128,7 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
             <Card key={stat.title}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -121,7 +140,7 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-2xl font-bold">{stat.formattedValue}</div>
                 <p className="flex items-center text-xs text-muted-foreground">
                   {stat.trend === "up" ? (
                     <TrendingUp className="mr-1 h-3 w-3 text-green-600" />
@@ -138,8 +157,8 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
+        <div className="grid gap-4 lg:grid-cols-7">
+          <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>Patient Visits (7-Day Trend)</CardTitle>
             </CardHeader>
@@ -161,7 +180,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="col-span-3">
+          <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle>Appointment Status</CardTitle>
             </CardHeader>
@@ -199,56 +218,58 @@ export default function DashboardPage() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-semibold">Patient</TableHead>
-                      <TableHead className="font-semibold">Doctor</TableHead>
-                      <TableHead className="font-semibold">Time</TableHead>
-                      <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {appointments.slice(0, 5).map((apt) => (
-                      <TableRow key={apt.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8">
-                              <AvatarFallback className="text-xs font-semibold">
-                                {apt.patient.split(" ").map((n) => n[0]).join("")}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="font-semibold">{apt.patient}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{apt.doctor}</TableCell>
-                        <TableCell>{apt.time}</TableCell>
-                        <TableCell>{apt.type}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              apt.status === "Completed"
-                                ? "default"
-                                : apt.status === "In Progress"
-                                ? "secondary"
-                                : "outline"
-                            }
-                            className={
-                              apt.status === "Completed"
-                                ? "bg-green-500 hover:bg-green-600 font-semibold"
-                                : apt.status === "In Progress"
-                                ? "bg-blue-500 hover:bg-blue-600 font-semibold"
-                                : ""
-                            }
-                          >
-                            {apt.status}
-                          </Badge>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-semibold">Patient</TableHead>
+                        <TableHead className="font-semibold">Doctor</TableHead>
+                        <TableHead className="font-semibold">Time</TableHead>
+                        <TableHead className="font-semibold">Type</TableHead>
+                        <TableHead className="font-semibold">Status</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {appointments.slice(0, 5).map((apt) => (
+                        <TableRow key={apt.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className="text-xs font-semibold">
+                                  {apt.patient.split(" ").map((n) => n[0]).join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-semibold">{apt.patient}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>{apt.doctor}</TableCell>
+                          <TableCell>{apt.time}</TableCell>
+                          <TableCell>{apt.type}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                apt.status === "Completed"
+                                  ? "default"
+                                  : apt.status === "In Progress"
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                              className={
+                                apt.status === "Completed"
+                                  ? "bg-green-500 hover:bg-green-600 font-semibold"
+                                  : apt.status === "In Progress"
+                                  ? "bg-blue-500 hover:bg-blue-600 font-semibold"
+                                  : ""
+                              }
+                            >
+                              {apt.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -271,7 +292,7 @@ export default function DashboardPage() {
                 View Medical Records
               </Button>
               <Button className="w-full justify-start" variant="outline">
-                <DollarSign className="mr-2 h-4 w-4" />
+                <IndianRupee className="mr-2 h-4 w-4" />
                 Generate Report
               </Button>
             </CardContent>
