@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, Search, Moon, Sun, LogOut, Menu } from "lucide-react"
+import { Search, Moon, Sun, LogOut, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {

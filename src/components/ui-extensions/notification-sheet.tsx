@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, X, Calendar, User, AlertCircle, CheckCircle, Clock } from "lucide-react"
+import { Bell, Calendar, User, AlertCircle, CheckCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"

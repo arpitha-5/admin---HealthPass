@@ -18,6 +18,16 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Receipt,
+  Wallet,
+  HeadphonesIcon,
+  Bell,
+  Activity,
+  ShieldAlert,
+  CalendarCog,
+  Shield,
+  AlertTriangle,
+  FileBarChart,
 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -29,6 +39,19 @@ const navigation = [
   { name: "Doctors", href: "/doctors", icon: Stethoscope },
   { name: "Medical Records", href: "/medical-records", icon: FileText },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
+]
+
+const operationsNavigation = [
+  { name: "Bill Management", href: "/bills", icon: Receipt },
+  { name: "Wallet & Credits", href: "/wallet", icon: Wallet },
+  { name: "Support Tickets", href: "/support", icon: HeadphonesIcon },
+  { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Performance", href: "/performance", icon: Activity },
+  { name: "Fraud Detection", href: "/fraud", icon: ShieldAlert },
+  { name: "Appointment Control", href: "/appointment-control", icon: CalendarCog },
+  { name: "Insurance Issues", href: "/insurance-issues", icon: Shield },
+  { name: "Emergency Control", href: "/emergency", icon: AlertTriangle },
+  { name: "Reports", href: "/reports", icon: FileBarChart },
 ]
 
 const secondaryNavigation = [
@@ -110,6 +133,20 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
 
         <Separator className="my-4" />
 
+        <div className="px-3 py-1">
+          {!collapsed && (
+            <span className="text-xs font-medium uppercase text-muted-foreground">Operations</span>
+          )}
+        </div>
+
+        <nav className="space-y-1">
+          {operationsNavigation.map((item) => (
+            <NavItem key={item.name} item={item} />
+          ))}
+        </nav>
+
+        <Separator className="my-4" />
+
         <nav className="space-y-1">
           {secondaryNavigation.map((item) => (
             <NavItem key={item.name} item={item} />
@@ -164,6 +201,15 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
           <ScrollArea className="flex-1 py-4">
             <nav className="space-y-1 px-2">
               {navigation.map((item) => (
+                <NavItem key={item.name} item={item} onClick={onMobileClose} />
+              ))}
+            </nav>
+            <Separator className="my-4 px-2" />
+            <div className="px-3 py-1">
+              <span className="text-xs font-medium uppercase text-muted-foreground">Operations</span>
+            </div>
+            <nav className="space-y-1 px-2">
+              {operationsNavigation.map((item) => (
                 <NavItem key={item.name} item={item} onClick={onMobileClose} />
               ))}
             </nav>
