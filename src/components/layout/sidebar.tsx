@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   Users,
   CalendarDays,
-  Stethoscope,
   FileText,
   BarChart3,
   Settings,
@@ -28,6 +27,15 @@ import {
   Shield,
   AlertTriangle,
   FileBarChart,
+  Building2,
+  TestTube,
+  Pill,
+  Tags,
+  Download,
+  ShieldCheck,
+  MessageSquare,
+  Ticket,
+  CalendarClock,
 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -36,7 +44,6 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Patients", href: "/patients", icon: Users },
   { name: "Appointments", href: "/appointments", icon: CalendarDays },
-  { name: "Doctors", href: "/doctors", icon: Stethoscope },
   { name: "Medical Records", href: "/medical-records", icon: FileText },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ]
@@ -52,6 +59,21 @@ const operationsNavigation = [
   { name: "Insurance Issues", href: "/insurance-issues", icon: Shield },
   { name: "Emergency Control", href: "/emergency", icon: AlertTriangle },
   { name: "Reports", href: "/reports", icon: FileBarChart },
+]
+
+const entityManagementNavigation = [
+  { name: "Hospitals", href: "/hospitals", icon: Building2 },
+  { name: "Diagnostics", href: "/diagnostics", icon: TestTube },
+  { name: "Medical Stores", href: "/medical-stores", icon: Pill },
+  { name: "Insurance", href: "/insurance", icon: ShieldCheck },
+  { name: "Hospital Dashboard", href: "/hospital-dashboard", icon: BarChart3 },
+  { name: "Diagnostic Dashboard", href: "/diagnostic-dashboard", icon: BarChart3 },
+  { name: "Medical Store Dashboard", href: "/medical-store-dashboard", icon: BarChart3 },
+  { name: "Discount Control", href: "/discount-control", icon: Tags },
+  { name: "Export Reports", href: "/export-reports", icon: Download },
+  { name: "Chat Escalation", href: "/chat-escalation", icon: MessageSquare },
+  { name: "Free Visit Control", href: "/free-visits", icon: Ticket },
+  { name: "Booking Conflicts", href: "/booking-conflicts", icon: CalendarClock },
 ]
 
 const secondaryNavigation = [
@@ -104,13 +126,13 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
   const sidebarContent = (
     <div
       className={cn(
-        "relative flex h-full flex-col border-r bg-sidebar transition-all duration-300 ease-out",
+        "relative flex h-screen flex-col border-r bg-sidebar transition-all duration-300 ease-out overflow-hidden",
         collapsed ? "w-16" : "w-64"
       )}
     >
       <div
         className={cn(
-          "flex h-16 items-center border-b transition-all duration-300 ease-out",
+          "flex h-16 shrink-0 items-center border-b transition-all duration-300 ease-out",
           collapsed ? "justify-center px-2" : "justify-between px-4"
         )}
       >
@@ -124,7 +146,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
         </Link>
       </div>
 
-      <ScrollArea className="flex-1 px-2 py-4">
+      <ScrollArea className="flex-1 px-2 py-4 h-[calc(100vh-4rem)]">
         <nav className="space-y-1">
           {navigation.map((item) => (
             <NavItem key={item.name} item={item} />
@@ -141,6 +163,20 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
 
         <nav className="space-y-1">
           {operationsNavigation.map((item) => (
+            <NavItem key={item.name} item={item} />
+          ))}
+        </nav>
+
+        <Separator className="my-4" />
+
+        <div className="px-3 py-1">
+          {!collapsed && (
+            <span className="text-xs font-medium uppercase text-muted-foreground">Entity Management</span>
+          )}
+        </div>
+
+        <nav className="space-y-1">
+          {entityManagementNavigation.map((item) => (
             <NavItem key={item.name} item={item} />
           ))}
         </nav>
@@ -210,6 +246,15 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen, onMobileClose
             </div>
             <nav className="space-y-1 px-2">
               {operationsNavigation.map((item) => (
+                <NavItem key={item.name} item={item} onClick={onMobileClose} />
+              ))}
+            </nav>
+            <Separator className="my-4 px-2" />
+            <div className="px-3 py-1">
+              <span className="text-xs font-medium uppercase text-muted-foreground">Entity Management</span>
+            </div>
+            <nav className="space-y-1 px-2">
+              {entityManagementNavigation.map((item) => (
                 <NavItem key={item.name} item={item} onClick={onMobileClose} />
               ))}
             </nav>

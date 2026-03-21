@@ -42,9 +42,17 @@ import {
   Video,
   MapPin,
   Loader2,
+  Trash2,
+  MoreVertical,
 } from "lucide-react"
 import { useState } from "react"
 import { useAppointments } from "@/hooks/use-appointments"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const statusColors: Record<string, string> = {
   Completed: "bg-green-500",
@@ -54,10 +62,72 @@ const statusColors: Record<string, string> = {
   "No-show": "bg-gray-500",
 }
 
+interface NewAppointment {
+  patient: string
+  doctor: string
+  date: string
+  time: string
+  type: string
+  location: string
+}
+
+const patients = [
+  { id: "PT001", name: "Sarah Johnson" },
+  { id: "PT002", name: "Robert Williams" },
+  { id: "PT003", name: "Maria Garcia" },
+  { id: "PT004", name: "David Brown" },
+  { id: "PT005", name: "Emily Davis" },
+  { id: "PT006", name: "Michael Chen" },
+]
+
+const doctors = [
+  { id: "DOC001", name: "Dr. Michael Chen" },
+  { id: "DOC002", name: "Dr. Emily Davis" },
+  { id: "DOC003", name: "Dr. James Wilson" },
+  { id: "DOC004", name: "Dr. Sarah Miller" },
+  { id: "DOC005", name: "Dr. Lisa Park" },
+]
+
+const timeSlots = [
+  "09:00 AM",
+  "09:30 AM",
+  "10:00 AM",
+  "10:30 AM",
+  "11:00 AM",
+  "11:30 AM",
+  "02:00 PM",
+  "02:30 PM",
+  "03:00 PM",
+  "03:30 PM",
+  "04:00 PM",
+  "04:30 PM",
+]
+
+const appointmentTypes = [
+  "General Checkup",
+  "Follow-up",
+  "Consultation",
+  "Teleconsultation",
+  "Lab Results",
+  "Annual Physical",
+]
+
 export default function AppointmentsPage() {
   const { data: appointments = [], isLoading } = useAppointments()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedAppointment, setSelectedAppointment] = useState<typeof appointments[0] | null>(null)
+  const [statusFilter, setStatusFilter] = useState("all")
+
+  const [newAppointment, setNewAppointment] = useState<NewAppointment>({
+    patient: "",
+    doctor: "",
+    date: "",
+    time: "",
+    type: "",
+    location: "",
+  })
 
   const calendarEvents = appointments.map((apt) => ({
     id: apt.id,
@@ -65,6 +135,38 @@ export default function AppointmentsPage() {
     date: new Date(apt.date),
     type: "appointment" as const,
   }))
+
+  const filteredAppointments = appointments.filter((apt) => {
+    if (statusFilter === "all") return true
+    return apt.status.toLowerCase() === statusFilter.toLowerCase()
+  })
+
+  const handleAddAppointment = () => {
+    if (!newAppointment.patient || !newAppointment.doctor || !newAppointment.date || !newAppointment.time) {
+      return
+    }
+    console.log("Adding appointment:", newAppointment)
+    setIsAddDialogOpen(false)
+    setNewAppointment({
+      patient: "",
+      doctor: "",
+      date: "",
+      time: "",
+      type: "",
+      location: "",
+    })
+  }
+
+  const handleDeleteClick = (apt: typeof appointments[0]) => {
+    setSelectedAppointment(apt)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    console.log("Deleting appointment:", selectedAppointment?.id)
+    setIsDeleteDialogOpen(false)
+    setSelectedAppointment(null)
+  }
 
   return (
     <DashboardLayout>
@@ -92,78 +194,92 @@ export default function AppointmentsPage() {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                  <Label>Patient</Label>
-                  <Select>
+                  <Label>Patient *</Label>
+                  <Select value={newAppointment.patient} onValueChange={(value) => setNewAppointment({ ...newAppointment, patient: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select patient" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sarah">Sarah Johnson</SelectItem>
-                      <SelectItem value="robert">Robert Williams</SelectItem>
-                      <SelectItem value="maria">Maria Garcia</SelectItem>
-                      <SelectItem value="david">David Brown</SelectItem>
+                      {patients.map((p) => (
+                        <SelectItem key={p.id} value={p.name}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Doctor</Label>
-                  <Select>
+                  <Label>Doctor *</Label>
+                  <Select value={newAppointment.doctor} onValueChange={(value) => setNewAppointment({ ...newAppointment, doctor: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select doctor" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="chen">Dr. Michael Chen</SelectItem>
-                      <SelectItem value="davis">Dr. Emily Davis</SelectItem>
-                      <SelectItem value="wilson">Dr. James Wilson</SelectItem>
-                      <SelectItem value="miller">Dr. Sarah Miller</SelectItem>
+                      {doctors.map((d) => (
+                        <SelectItem key={d.id} value={d.name}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Date</Label>
-                    <Input type="date" />
+                    <Label>Date *</Label>
+                    <Input
+                      type="date"
+                      value={newAppointment.date}
+                      onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label>Time</Label>
-                    <Select>
+                    <Label>Time *</Label>
+                    <Select value={newAppointment.time} onValueChange={(value) => setNewAppointment({ ...newAppointment, time: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="9:00">9:00 AM</SelectItem>
-                        <SelectItem value="10:00">10:00 AM</SelectItem>
-                        <SelectItem value="11:00">11:00 AM</SelectItem>
-                        <SelectItem value="14:00">2:00 PM</SelectItem>
-                        <SelectItem value="15:00">3:00 PM</SelectItem>
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Appointment Type</Label>
-                  <Select>
+                  <Select value={newAppointment.type} onValueChange={(value) => setNewAppointment({ ...newAppointment, type: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="checkup">General Checkup</SelectItem>
-                      <SelectItem value="followup">Follow-up</SelectItem>
-                      <SelectItem value="consultation">Consultation</SelectItem>
-                      <SelectItem value="tele">Teleconsultation</SelectItem>
+                      {appointmentTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Location / Room</Label>
-                  <Input placeholder="Room 101" />
+                  <Input
+                    placeholder="Room 101"
+                    value={newAppointment.location}
+                    onChange={(e) => setNewAppointment({ ...newAppointment, location: e.target.value })}
+                  />
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(false)}>
+                <Button
+                  onClick={handleAddAppointment}
+                  disabled={!newAppointment.patient || !newAppointment.doctor || !newAppointment.date || !newAppointment.time}
+                >
                   Schedule
                 </Button>
               </DialogFooter>
@@ -257,7 +373,7 @@ export default function AppointmentsPage() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <CardTitle className="text-lg">All Appointments ({appointments.length})</CardTitle>
                   <div className="flex items-center gap-2">
-                    <Select defaultValue="all">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
                       <SelectTrigger className="w-[150px]">
                         <SelectValue placeholder="Filter by status" />
                       </SelectTrigger>
@@ -265,7 +381,9 @@ export default function AppointmentsPage() {
                         <SelectItem value="all">All Status</SelectItem>
                         <SelectItem value="scheduled">Scheduled</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="in progress">In Progress</SelectItem>
                         <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="no-show">No-show</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button variant="outline" size="icon">
@@ -280,7 +398,7 @@ export default function AppointmentsPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                    <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -290,10 +408,11 @@ export default function AppointmentsPage() {
                           <TableHead className="font-semibold">Type</TableHead>
                           <TableHead className="font-semibold">Location</TableHead>
                           <TableHead className="font-semibold">Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {appointments.map((apt) => (
+                        {filteredAppointments.map((apt) => (
                           <TableRow key={apt.id} className="hover:bg-muted/50">
                             <TableCell>
                               <div className="flex items-center gap-3">
@@ -330,6 +449,24 @@ export default function AppointmentsPage() {
                                 {apt.status}
                               </Badge>
                             </TableCell>
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteClick(apt)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -341,6 +478,44 @@ export default function AppointmentsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Appointment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this appointment? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAppointment && (
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                  <CalendarIcon className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="font-medium">{selectedAppointment.patient}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedAppointment.date} at {selectedAppointment.time}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedAppointment.type} with {selectedAppointment.doctor}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Appointment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   )
 }
